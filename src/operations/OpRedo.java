@@ -26,7 +26,12 @@ public class OpRedo extends Operation {
         if (!redoList.isEmpty()) {
             EditOperation operation = redoList.pop();
             OpUndo.insert(operation);
-            operation._execute();
+            try {
+                operation._execute();
+            } catch (Exception e) {
+
+            }
+
         }
     }
 }

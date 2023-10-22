@@ -1,5 +1,7 @@
 package operations;
 
+import EditorExceptions.OperationExecutionFailed;
+import EditorExceptions.OperationWrongArgument;
 import log.Loggers;
 import utils.Parser;
 
@@ -18,7 +20,7 @@ public class OpUndo extends Operation {
     }
 
     @Override
-    public void _execute() {
+    public void _execute() throws OperationExecutionFailed {
 
         if (!undoList.isEmpty()) {
             EditOperation operation = undoList.pop();
@@ -26,7 +28,7 @@ public class OpUndo extends Operation {
             operation.undo();
         }
         else {
-            Loggers.e.log("No operations have been executed before.");
+            throw new OperationExecutionFailed("No operations have been executed before");
         }
 
     }

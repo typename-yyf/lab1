@@ -1,5 +1,6 @@
 package session;
 
+import EditorExceptions.ParserNoElementFound;
 import operations.*;
 import utils.Parser;
 import log.Loggers;
@@ -30,8 +31,14 @@ public class Session {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            Parser parser = new Parser(scanner.nextLine());
-            String opName = parser.get();
+            String command = scanner.nextLine();
+            Parser parser = new Parser(command);
+            String opName;
+            try {
+                opName = parser.get();
+            } catch (ParserNoElementFound e) {
+                continue;
+            }
 
             if (opName.equals("quit"))
                 break;
@@ -46,7 +53,8 @@ public class Session {
                 continue;
             }
 
-            operation.execute(parser);
+            if (operation.execute(parser) == Operation.OPERATION_COMPLETED)
+                Loggers.h.log(command);
         }
 
         return 0;

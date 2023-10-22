@@ -1,4 +1,4 @@
 package EditorExceptions;
 
-public class ParserNotAInteger extends Exception{
+public class ParserNotAInteger extends Exception {
 }

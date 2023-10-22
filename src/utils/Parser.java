@@ -12,7 +12,7 @@ public class Parser {
 
     public String get() throws ParserNoElementFound {
         String[] sArg = arg.split("\s+", 2);
-        if (sArg.length == 0) throw new ParserNoElementFound();
+        if (sArg[0].length() == 0) throw new ParserNoElementFound();
 
         try {
             arg = sArg[1];
@@ -31,7 +31,7 @@ public class Parser {
 
     public int getInteger() throws ParserNoElementFound, ParserNotAInteger {
         String[] sArg = arg.split("\s+", 2);
-        if (sArg.length == 0) throw new ParserNoElementFound();
+        if (sArg[0].length() == 0) throw new ParserNoElementFound();
 
         int r = 0;
 

@@ -7,11 +7,11 @@ import EditorExceptions.*;
 public class OpHistory extends Operation {
     private int nHistory;
     @Override
-    public void parseArgument(Parser parser) {
+    public void parseArgument(Parser parser) throws OperationWrongArgument {
         try {
             nHistory = parser.getInteger();
         } catch (ParserNotAInteger e) {
-            Loggers.e.log("Wrong arguments.");
+            throw new OperationWrongArgument("Wrong arguments.");
         } catch (ParserNoElementFound e) {
             nHistory = -1;
         }

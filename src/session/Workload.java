@@ -1,7 +1,8 @@
 package session;
 
+import EditorExceptions.WorkloadTextNotFound;
+
 import java.util.LinkedList;
-import EditorExceptions.TextNotFound;
 
 public class Workload {
     private class Stat {
@@ -32,9 +33,9 @@ public class Workload {
         System.out.println("insert: " + s +  " at: " + n);
     }
 
-    public int find(String s) {
+    public int find(String s) throws WorkloadTextNotFound {
         /* TODO */
-        /* 寻找字符串s第一次出现的行数，未找到时返回-1 */
+        /* 寻找字符串s第一次出现的行数，未找到时抛出WorkloadTextNotFound */
 
         return 0;
     }
