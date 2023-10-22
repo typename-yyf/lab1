@@ -7,7 +7,7 @@ public class OpDirTree extends Operation {
     private int dirLine;
     @Override
     public void parseArgument(Parser parser) {
-        dirLine = parser.getInteger();
+        dirLine = textWorkload.find(parser.getAll());
     }
 
     @Override

@@ -1,5 +1,7 @@
 package utils;
 
+import EditorExceptions.*;
+
 public class Parser {
     private String arg;
 
@@ -7,8 +9,10 @@ public class Parser {
         arg = argument;
     }
 
-    public String get() {
-        String[] sArg = arg.split(" ", 2);
+
+    public String get() throws ParserNoElementFound {
+        String[] sArg = arg.split("\s+", 2);
+        if (sArg.length == 0) throw new ParserNoElementFound();
 
         try {
             arg = sArg[1];
@@ -25,15 +29,19 @@ public class Parser {
         return rv;
     }
 
-    public int getInteger() {
-        String[] sArg = arg.split(" ", 2);
+    public int getInteger() throws ParserNoElementFound, ParserNotAInteger {
+        String[] sArg = arg.split("\s+", 2);
+        if (sArg.length == 0) throw new ParserNoElementFound();
 
-        int r = Integer.parseInt(sArg[0]);
+        int r = 0;
 
         try {
+            r = Integer.parseInt(sArg[0]);
             arg = sArg[1];
         } catch (ArrayIndexOutOfBoundsException e) {
             arg = "";
+        } catch (NumberFormatException e) {
+            throw new ParserNotAInteger();
         }
 
         return r;

@@ -1,5 +1,8 @@
 package operations;
 
+import EditorExceptions.ParserNoElementFound;
+import EditorExceptions.ParserNotAInteger;
+import log.Loggers;
 import utils.Parser;
 
 public class OpDelete extends EditOperation {
@@ -15,7 +18,9 @@ public class OpDelete extends EditOperation {
     public void parseArgument(Parser parser) {
         try {
             deleteLine = parser.getInteger();
-        } catch (NumberFormatException e) {
+        } catch (ParserNoElementFound e) {
+            Loggers.e.log("Wrong arguments.");
+        } catch (ParserNotAInteger e) {
             deleteLine = textWorkload.find(parser.getAll());
         }
     }
