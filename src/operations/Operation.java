@@ -6,6 +6,9 @@ import session.Workload;
 import log.Loggers;
 
 import utils.Parser;
+
+import java.io.IOException;
+
 public abstract class Operation {
     public static final int OPERATION_FAILED = -1;
     public static final int OPERATION_COMPLETED = 0;
@@ -24,13 +27,15 @@ public abstract class Operation {
         } catch (OperationWrongArgument | OperationExecutionFailed e) {
             Loggers.e.log(e.getMessage());
             return OPERATION_FAILED;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return OPERATION_COMPLETED;
     }
 
     public abstract void parseArgument(Parser parser) throws OperationWrongArgument;
-    public abstract void _execute() throws OperationExecutionFailed;
+    public abstract void _execute() throws OperationExecutionFailed, IOException;
 
 }
 
