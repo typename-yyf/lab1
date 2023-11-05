@@ -117,6 +117,7 @@ public class Workload {
         bw.close();
     }
 
+    //插入行，如果行号为-1，则在末尾插入，若行号非-1，在对应行插入（第一行行号为0）
     public void insert(String s, int n) {
         if(n < 0){
             textList.add(textList.size() + n + 1, s);

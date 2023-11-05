@@ -8,4 +8,8 @@ public class OpAppendTail extends OpAbstractInsert{
         text = parser.getAll();
         insertLine = -1;
     }
+    @Override
+    public void _execute(){
+        textWorkload.insert(text,insertLine);
+    }
 }

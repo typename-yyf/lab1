@@ -30,17 +30,18 @@ public class Parser {
     }
 
     public int getInteger() throws ParserNoElementFound, ParserNotAInteger {
-        String[] sArg = arg.split("\s+", 2);
+        String[] sArg = arg.split("\\s+", 2);
         if (sArg[0].length() == 0) throw new ParserNoElementFound();
 
         int r = 0;
 
         try {
             r = Integer.parseInt(sArg[0]);
-            arg = sArg[1];
+            arg = sArg[1];  // If there is no content after the line number, set arg to an empty string
         } catch (ArrayIndexOutOfBoundsException e) {
             arg = "";
         } catch (NumberFormatException e) {
+            arg = sArg[0];
             throw new ParserNotAInteger();
         }
 
