@@ -15,6 +15,7 @@ public class OpLoad extends Operation{
 
     @Override
     public void _execute() throws IOException {
-        textWorkload = new Workload(fileName);
+        if(textWorkload==null)textWorkload = new Workload(fileName);
+        else textWorkload.loadNewFile(fileName);
     }
 }

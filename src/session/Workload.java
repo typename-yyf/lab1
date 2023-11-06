@@ -75,10 +75,19 @@ import java.nio.file.*;
 public class Workload {
     private class Stat {
         String fileName;
+        LocalDateTime startTime;
+        LocalDateTime endTime=null;
+        public Stat(String fileName,LocalDateTime startTime){
+            this.fileName = fileName;
+            this.startTime = startTime;
+            this.endTime = null;
+        }
     }
+    private LinkedList<Stat> statSeq;
+
     private LinkedList<String> textList;
-    private LocalDateTime sessionStart;
-    private HashMap<String, Long> fileWorkTimeMap;
+    private LocalDateTime sessionStart;//程序开始时间
+    private HashMap<String, Long> fileWorkTimeMap;//工作时间
     private HashMap<String, LocalDateTime> fileLastSaveTimeMap;
     private Stat stat;
 
@@ -87,23 +96,24 @@ public class Workload {
     }
 
     public Workload(String file) throws IOException {
-        this.stat = new Stat();
-        this.stat.fileName = file;
-        this.sessionStart = LocalDateTime.now();
-        this.fileWorkTimeMap = new HashMap<>();
-        this.fileLastSaveTimeMap = new HashMap<>();
-        this.fileLastSaveTimeMap.put(file, LocalDateTime.now());
-        this.textList = new LinkedList<>();
+        this.statSeq = new LinkedList<>();
+        load(file);
+        changeTime(file);
+    }
 
+    public void loadNewFile(String file) throws IOException {
+        if(Objects.equals(file, getFileName()))return;
+        load(file);
+        changeTime(file);
+    }
+    private void load(String file) throws IOException {
         // 检查路径合法性
-        Path path = null;
         try {
-            path = Paths.get(file);
+            Paths.get(file);
         } catch (InvalidPathException e) {
             System.out.println("Invalid file path");
             return;
         }
-
         // 检查是否存在文件，不存在则新建
         File f = new File(file);
         if(!f.exists()) {
@@ -112,10 +122,28 @@ public class Workload {
 
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line;
+        this.textList = new LinkedList<>(); // 初始化 textList
         while ((line = br.readLine()) != null) {
-            textList.add(line);
+            this.textList.add(line);
         }
         br.close();
+
+    }
+    private void changeTime(String file){
+        if(this.statSeq.size()!=0)this.statSeq.getLast().endTime=LocalDateTime.now();
+        this.stat = new Stat(file,LocalDateTime.now());
+        this.statSeq.add(stat);
+
+        for(Stat s:this.statSeq){
+            System.out.print(s.fileName+"  ");
+            System.out.print(s.startTime+"  ");
+            System.out.println(s.endTime);
+        }
+
+        this.fileWorkTimeMap = new HashMap<>();
+        this.fileLastSaveTimeMap = new HashMap<>();
+        this.fileLastSaveTimeMap.put(file, LocalDateTime.now());
+        this.textList = new LinkedList<>();
     }
 
     public void save() throws IOException {
