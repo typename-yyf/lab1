@@ -3,6 +3,8 @@ package operations;
 import session.Workload;
 import utils.Parser;
 
+import java.io.IOException;
+
 public class OpLoad extends Operation{
     String fileName;
 
@@ -12,7 +14,7 @@ public class OpLoad extends Operation{
     }
 
     @Override
-    public void _execute() {
+    public void _execute() throws IOException {
         textWorkload = new Workload(fileName);
     }
 }

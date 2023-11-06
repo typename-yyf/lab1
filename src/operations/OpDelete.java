@@ -20,6 +20,7 @@ public class OpDelete extends EditOperation {
     public void parseArgument(Parser parser) throws OperationWrongArgument {
         try {
             deleteLine = parser.getInteger();
+
         } catch (ParserNoElementFound e) {
             throw new OperationWrongArgument("Wrong arguments.");
         } catch (ParserNotAInteger e) {
@@ -27,6 +28,8 @@ public class OpDelete extends EditOperation {
                 deleteLine = textWorkload.find(parser.getAll());
             } catch (WorkloadTextNotFound e1) {
                 throw new OperationWrongArgument("Text Not Found.");
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
 
         }

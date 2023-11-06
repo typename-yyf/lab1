@@ -1,10 +1,12 @@
 package operations;
 
+import log.Loggers;
 import utils.Parser;
 
 import java.io.IOException;
 
-public class OpSave extends Operation{
+public class OpStats extends Operation{
+    String option;
     @Override
     public void parseArgument(Parser parser) {
 
@@ -12,6 +14,6 @@ public class OpSave extends Operation{
 
     @Override
     public void _execute() throws IOException {
-        textWorkload.save();
+       textWorkload.stats(option);
     }
 }

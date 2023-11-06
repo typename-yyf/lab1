@@ -1,5 +1,6 @@
 package operations;
 
+import EditorExceptions.OperationExecutionFailed;
 import utils.Parser;
 
 import java.util.Stack;
@@ -22,7 +23,7 @@ public class OpRedo extends Operation {
     }
 
     @Override
-    public void _execute() {
+    public void _execute() throws OperationExecutionFailed {
         if (!redoList.isEmpty()) {
             EditOperation operation = redoList.pop();
             OpUndo.insert(operation);
@@ -32,6 +33,9 @@ public class OpRedo extends Operation {
 
             }
 
+        }
+        else {
+            throw new OperationExecutionFailed("No operations available for redo");
         }
     }
 }

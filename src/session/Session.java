@@ -5,6 +5,7 @@ import operations.*;
 import utils.Parser;
 import log.Loggers;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -25,6 +26,7 @@ public class Session {
         commandMap.put("redo",        OpRedo.class);
         commandMap.put("save",        OpSave.class);
         commandMap.put("undo",        OpUndo.class);
+        commandMap.put("stats",        OpStats.class);
     }
 
     public int run() {
@@ -55,6 +57,12 @@ public class Session {
 
             if (operation.execute(parser) == Operation.OPERATION_COMPLETED)
                 Loggers.h.log(command);
+            OpSave save = new OpSave();
+            try {
+                save._execute();
+            } catch (IOException e){
+
+            }
         }
 
         return 0;
