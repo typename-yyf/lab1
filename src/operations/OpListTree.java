@@ -11,6 +11,6 @@ public class OpListTree extends Operation {
 
     @Override
     public void _execute() {
-        Loggers.o.log(textWorkload.listTree(0));
+        Loggers.o.log(textWorkload.listTree(-1,-1));
     }
 }
