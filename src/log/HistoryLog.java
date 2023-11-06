@@ -74,7 +74,7 @@ public class HistoryLog extends Log {
     }
 
     @Override
-    public void log(String... args) {
+    public String log(String... args) {
         StringBuilder sb = new StringBuilder();
         sb.append(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         for (String arg : args) {
@@ -86,5 +86,6 @@ public class HistoryLog extends Log {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 }

@@ -65,21 +65,67 @@
 //}
 package session;
 import java.io.*;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import EditorExceptions.WorkloadTextNotFound;
 import java.util.LinkedList;
 import java.nio.file.*;
 public class Workload {
+    private class TreeNode {
+        int level; // 表示节点的级别
+        boolean isTitle; // 表示节点是否为标题
+        String content; // 节点的内容
+        List<TreeNode> children; // 子节点列表
+
+        public TreeNode(int level, boolean isTitle, String content) {
+            this.level = level;
+            this.isTitle = isTitle;
+            this.content = content;
+            this.children = new ArrayList<>();
+        }
+        private TreeNode createTree() {
+            TreeNode root = new TreeNode(-1, false, "");
+            TreeNode current = root;
+
+            for (String line : textList) {
+                int level = countLevel(line);
+                boolean isTitle = line.startsWith("#");
+                TreeNode node = new TreeNode(level, isTitle, line);
+
+                if (level > current.level) {
+                    current.children.add(node);
+                    current = node;
+                } else {
+                    while (level <= current.level) {
+                        current = getParent(current);
+                    }
+                    current.children.add(node);
+                    current = node;
+                }
+            }
+
+            return root;
+        }
+        private int countLevel(String line) {
+            // 这个方法用于计算行的级别，你可以根据需要进行修改
+        }
+
+        private TreeNode getParent(TreeNode node) {
+            // 这个方法用于获取节点的父节点，你可以根据需要进行修改
+        }
+        private void printTree(TreeNode node, String prefix) {
+            if (node != root) {
+                System.out.println(prefix + (node.isTitle ? "├── " : "└── ") + node.content);
+            }
+
+            for (int i = 0; i < node.children.size(); i++) {
+                printTree(node.children.get(i), prefix + (i < node.children.size() - 1 ? "│   " : "    "));
+            }
+        }
+    }
     private class Stat {
         String fileName;
     }
     private LinkedList<String> textList;
-    private LocalDateTime sessionStart;
-    private HashMap<String, Long> fileWorkTimeMap;
-    private HashMap<String, LocalDateTime> fileLastSaveTimeMap;
     private Stat stat;
 
     public String getFileName() {
@@ -89,10 +135,6 @@ public class Workload {
     public Workload(String file) throws IOException {
         this.stat = new Stat();
         this.stat.fileName = file;
-        this.sessionStart = LocalDateTime.now();
-        this.fileWorkTimeMap = new HashMap<>();
-        this.fileLastSaveTimeMap = new HashMap<>();
-        this.fileLastSaveTimeMap.put(file, LocalDateTime.now());
         this.textList = new LinkedList<>();
 
         // 检查路径合法性
@@ -119,10 +161,6 @@ public class Workload {
     }
 
     public void save() throws IOException {
-        LocalDateTime now = LocalDateTime.now();
-        long minutes = Duration.between(fileLastSaveTimeMap.get(stat.fileName), now).toMinutes();
-        fileWorkTimeMap.put(stat.fileName, fileWorkTimeMap.getOrDefault(stat.fileName, 0L) + minutes);
-        fileLastSaveTimeMap.put(stat.fileName, now);
         BufferedWriter bw = new BufferedWriter(new FileWriter(stat.fileName));
         for (String line : textList) {
             bw.write(line);
@@ -155,55 +193,53 @@ public class Workload {
         return textList.remove(n);
     }
 
-    public String list(int n) {
-        StringBuilder result = new StringBuilder();
-        for(int i = n; i < textList.size(); i++){
-            result.append(textList.get(i)).append("\n");
-        }
-        return result.toString();
-    }
-
-    // Assuming listTree function prints the list with each line indented according to its line number
     public String listTree(int n) {
-        StringBuilder result = new StringBuilder();
-        for(int i = n; i < textList.size(); i++){
-            char[] indentation = new char[i];
-            Arrays.fill(indentation, ' ');
-            result.append(indentation).append(textList.get(i)).append("\n");
+        if (n < 0 || n >= textList.size()) {
+            return "";
         }
+        StringBuilder result = new StringBuilder();
+        listTreeHelper(n, "", false, result);
         return result.toString();
     }
 
-    public void stats(String option) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd:HHmmss");
-        System.out.println("session start " + sessionStart.format(formatter));
-
-        if ("all".equals(option)) {
-            for (Map.Entry<String, Long> entry : fileWorkTimeMap.entrySet()) {
-                printWorkTime(getRelativePath(entry.getKey()), entry.getValue());
-            }
-        } else { // 默认为 "current"
-            printWorkTime(getRelativePath(stat.fileName), fileWorkTimeMap.getOrDefault(stat.fileName, 0L));
+    private void listTreeHelper(int n, String prefix, boolean isLast, StringBuilder result) {
+        if (n < 0 || n >= textList.size()) {
+            return;
         }
-    }
-
-    private String getRelativePath(String absolutePath) {
-        // 根据实际情况修改
-        return absolutePath.substring(absolutePath.lastIndexOf("/") + 1);
-    }
-
-    private void printWorkTime(String fileName, long minutes) {
-        long hours = minutes / 60;
-        minutes %= 60;
-
-        System.out.print(fileName + " ");
-        if (hours > 0) {
-            System.out.print(hours + " 小时 ");
+        String line = textList.get(n).trim();
+        int level = 0;
+        while (line.startsWith("#")) {
+            level++;
+            line = line.substring(1).trim();
         }
-        if (minutes > 0 || hours == 0) {
-            System.out.println(minutes + " 分钟");
+        result.append(prefix);
+        if(isLast){
+            result.append("└── ");
+            prefix += "    ";
         } else {
-            System.out.println();
+            result.append("├── ");
+            prefix += "    ";
+        }
+        result.append(line);
+        result.append('\n');
+        int nextN = n+1;
+        while(nextN < textList.size() && !textList.get(nextN).trim().startsWith("#")){
+            result.append(prefix);
+            result.append("└── ·");
+            result.append(textList.get(nextN).trim().substring(1));
+            result.append('\n');
+            nextN++;
+        }
+        int count = 0;
+        for(int i=nextN; i<textList.size(); i++){
+            if(textList.get(i).trim().startsWith("#")){
+                count++;
+            } else {
+                break;
+            }
+        }
+        for(int i=0; i<count; i++){
+            listTreeHelper(nextN+i, prefix, i == count-1, result);
         }
     }
 }

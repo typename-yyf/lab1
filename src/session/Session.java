@@ -26,6 +26,7 @@ public class Session {
         commandMap.put("redo",        OpRedo.class);
         commandMap.put("save",        OpSave.class);
         commandMap.put("undo",        OpUndo.class);
+        commandMap.put("stats",        OpStats.class);
     }
 
     public int run() {
