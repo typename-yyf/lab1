@@ -140,6 +140,28 @@ public class Workload {
         }
     }
 
+    //查找标题，只需输入标题内容即可
+    public int findDir(String s) throws Exception {
+        int index = -1;
+        for (int i = 0; i < textList.size(); i++) {
+            String line = textList.get(i);
+            if (line.matches("^#+\\s" + s)) {
+                index = i;
+                break;
+            }
+        }
+
+        if(index == -1){
+            throw new Exception("WorkloadTextNotFound");
+        }
+        return index;
+    }
+    //查找标题，只需输入标题内容即可
+    public int getDirLevel(int i){
+        String dirText = textList.get(i);
+        return countLevel(dirText);
+    }
+
     public int find(String s) throws Exception {
         int index = textList.indexOf(s);
         if(index == -1){
@@ -162,17 +184,98 @@ public class Workload {
         }
         return result.toString();
     }
+    private class TreeNode {
+        int level;
+        boolean is_title;
+        String texts;
+        TreeNode parent;
+        List<TreeNode> children;
 
-    // Assuming listTree function prints the list with each line indented according to its line number
-    public String listTree(int n) {
-        StringBuilder result = new StringBuilder();
-        for(int i = n; i < textList.size(); i++){
-            char[] indentation = new char[i];
-            Arrays.fill(indentation, ' ');
-            result.append(indentation).append(textList.get(i)).append("\n");
+        public TreeNode(int level,boolean is_title,String texts) {
+            this.level = level;
+            this.is_title = is_title;
+            this.texts = texts;
+            this.children = new ArrayList<>();
         }
+
+        public void addChild(TreeNode child) {
+            child.parent = this;  // Add parent to the child
+            this.children.add(child);
+        }
+
+    }
+
+    private int buildTree(int min_level,int position_now,TreeNode root) {
+        position_now++;
+        while (position_now < textList.size()) {
+            if(countLevel(textList.get(position_now))!=-1 &&countLevel(textList.get(position_now))<=min_level){
+                //若为下一个大标题
+                return position_now;
+            }
+            if (countLevel(textList.get(position_now))==-1){//若非标题，则设置成与根节点相同的级别
+                TreeNode child = new TreeNode(root.level,false,textList.get(position_now).replaceFirst("^\\*+\\s", ""));
+                root.addChild(child);
+                position_now++;
+            }
+            else if (countLevel(textList.get(position_now))>root.level){//若为子标题
+                TreeNode child = new TreeNode(countLevel(textList.get(position_now)),true,textList.get(position_now).replaceFirst("^#+\\s", ""));
+                position_now = buildTree(min_level,position_now,child);
+                root.addChild(child);
+            }else if (countLevel(textList.get(position_now))==root.level){//若为同级别标题
+                return position_now;
+            }
+            else if (countLevel(textList.get(position_now))<root.level){//若为级别比自己大
+                return position_now;
+            }
+        }
+        return position_now;
+    }
+
+    //得到第n行的级别（有几个#为几级），如果是内容而非标题，返回-1
+    private int countLevel(String line) {
+        int level = 0;
+        if (line.charAt(0) == '*'){
+            level=-1;
+            return level;
+        }
+        while (line.charAt(level) == '#') {
+            level++;
+        }
+        return level;
+    }
+    private String printTree(TreeNode node,boolean isLast) {//打印不包含当前节点的子树
+        StringBuilder sb = new StringBuilder();
+        if(!(node.level==-1 && node.is_title==true)) {//若不是"root"节点，则打印节点
+            sb.append("    ".repeat(Math.max(0, node.level - 1)));
+            if(!node.is_title && node.level!=-1)sb.append("    ");//若为
+            if(isLast)sb.append("└── ");
+            else sb.append("├── ");
+            if(!node.is_title)sb.append("·");
+            sb.append(node.texts).append('\n');
+        }
+        for(int i = 0;i<node.children.size();i++){
+            TreeNode child = node.children.get(i);
+            if(i!=node.children.size()-1 && child.level<=node.children.get(i+1).level) //不是最后一个同等级的节点
+                sb.append(printTree(child,false));
+            else
+                sb.append(printTree(child,true));
+        }
+        return sb.toString();
+    }
+
+    public String listTree(int min_level,int n) {
+        TreeNode root = null;
+        if(n==-1) root = new TreeNode(-1,true,"root");
+        else root = new TreeNode(min_level,true,textList.get(n).replaceFirst("^#+\\s", ""));
+        buildTree(min_level,n,root);
+
+        String result = null;
+        if(n==-1)result = printTree(root,false);
+        else result = printTree(root,true);
+
         return result.toString();
     }
+
 
     public void stats(String option) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd:HHmmss");
