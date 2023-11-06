@@ -13,10 +13,7 @@ public class OpDirTree extends Operation {
             dirLine = textWorkload.find(parser.getAll());
         } catch (WorkloadTextNotFound e) {
             throw new OperationWrongArgument("Text not found.");
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
     }
 
     @Override

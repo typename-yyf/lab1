@@ -1,68 +1,4 @@
-//package session;
-//
-//import EditorExceptions.WorkloadTextNotFound;
-//
-//import java.util.LinkedList;
-//
-//public class Workload {
-//    private class Stat {
-//        String fileName;
-//    }
-//    private LinkedList<String> textList;
-//    private Stat stat;
-//
-//    public String getFileName() {
-//        return stat.fileName;
-//    }
-//
-//    public Workload(String file) {
-//        /* TODO */
-//        /* 读入文件，并且以行为单位，组织成一个链表存在textList里 */
-//        System.out.println("load file: " + file);
-//    }
-//
-//    public void save() {
-//        /* TODO */
-//        /* 将textList存为文件 */
-//        System.out.println("save file: " + stat.fileName);
-//    }
-//
-//    public void insert(String s, int n) {
-//        /* TODO */
-//        /* 在第n行插入文本，n=-1时插入在倒数第1行，-2时倒数第二行以此类推 */
-//        System.out.println("insert: " + s +  " at: " + n);
-//    }
-//
-//    public int find(String s) throws WorkloadTextNotFound {
-//        /* TODO */
-//        /* 寻找字符串s第一次出现的行数，未找到时抛出WorkloadTextNotFound */
-//
-//        return 0;
-//    }
-//
-//    public String delete(int n) {
-//        /* TODO */
-//        /* 删除第n行的文本，并返回被删除的文本，若n不符合要求返回null，n=-1时删除倒数第1行，-2时倒数第二行以此类推 */
-//        System.out.println("delete: " + "at: " + n);
-//
-//        return null;
-//    }
-//
-//    public String list(int n) {
-//        /* TODO */
-//        /* 返回第n行以后的所有文本 */
-//
-//        return "";
-//
-//    }
-//
-//    public String listTree(int n) {
-//        /* TODO */
-//        /* 与需求中的list相同，放回第n行开始的所有树状结构 */
-//
-//        return "";
-//    }
-//}
+
 package session;
 import java.io.*;
 import java.time.Duration;
@@ -140,10 +76,10 @@ public class Workload {
         }
     }
 
-    public int find(String s) throws Exception {
+    public int find(String s) throws WorkloadTextNotFound {
         int index = textList.indexOf(s);
         if(index == -1){
-            throw new Exception("WorkloadTextNotFound");
+            throw new WorkloadTextNotFound();
         }
         return index;
     }
@@ -166,13 +102,56 @@ public class Workload {
     // Assuming listTree function prints the list with each line indented according to its line number
     public String listTree(int n) {
         StringBuilder result = new StringBuilder();
-        for(int i = n; i < textList.size(); i++){
-            char[] indentation = new char[i];
-            Arrays.fill(indentation, ' ');
-            result.append(indentation).append(textList.get(i)).append("\n");
+
+        Iterator<String> iText = textList.iterator();
+        ArrayList<Integer> levelList = new ArrayList<Integer>();
+
+        int tLevel;
+
+        for (int i = 0; i < n; i++) iText.next();
+        levelList.add(levelOfText(iText.next()));
+        tLevel = levelList.get(0);
+
+        while (iText.hasNext()) {
+            String text = iText.next();
+            int level = levelOfText(text);
+
+            if (level == 0) level = tLevel + 1;
+            else tLevel = level;
+
+            if (level < levelList.get(0)) break;
+
+            levelList.add(level);
         }
+
+        iText = textList.iterator();
+        for (int i = 0; i < n; i++) iText.next();
+
+        String alignment    = "    ";
+
+        for (int i = 0; i < levelList.size(); i++) {
+            String branch = "└── ";
+            if (i < levelList.size() - 1)
+                if (levelList.get(i + 1) == 0 ||
+                    levelList.get(i + 1).equals(levelList.get(i)))
+                    branch = "├── ";
+
+                result.append(alignment.repeat((levelList.get(i) - levelList.get(0))));
+                result.append(branch);
+                result.append(iText.next());
+                result.append("\n");
+        }
+
         return result.toString();
     }
+
+    private int levelOfText(String s) {
+        int r = 0;
+        for (; r < s.length() && s.charAt(r) == '#'; r++);
+
+        return r;
+    }
+
 
     public void stats(String option) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd:HHmmss");
