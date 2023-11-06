@@ -67,7 +67,6 @@ public class Workload {
         bw.close();
     }
 
-    //插入行，如果行号为-1，则在末尾插入，若行号非-1，在对应行插入（第一行行号为0）
     public void insert(String s, int n) {
         if(n < 0){
             textList.add(textList.size() + n + 1, s);
@@ -99,7 +98,6 @@ public class Workload {
         return result.toString();
     }
 
-    // Assuming listTree function prints the list with each line indented according to its line number
     public String listTree(int n) {
         StringBuilder result = new StringBuilder();
 
@@ -127,8 +125,6 @@ public class Workload {
         iText = textList.iterator();
         for (int i = 0; i < n; i++) iText.next();
 
-        String alignment    = "    ";
-
         for (int i = 0; i < levelList.size(); i++) {
             String branch = "└── ";
             if (i < levelList.size() - 1)
@@ -136,7 +132,7 @@ public class Workload {
                     levelList.get(i + 1).equals(levelList.get(i)))
                     branch = "├── ";
 
-                result.append(alignment.repeat((levelList.get(i) - levelList.get(0))));
+                result.append("    ".repeat((levelList.get(i) - levelList.get(0))));
                 result.append(branch);
                 result.append(iText.next());
                 result.append("\n");
