@@ -37,11 +37,10 @@ public class Parser {
 
         try {
             r = Integer.parseInt(sArg[0]);
-            arg = sArg[1];  // If there is no content after the line number, set arg to an empty string
+            arg = sArg[1];
         } catch (ArrayIndexOutOfBoundsException e) {
             arg = "";
         } catch (NumberFormatException e) {
-            arg = sArg[0];
             throw new ParserNotAInteger();
         }
 

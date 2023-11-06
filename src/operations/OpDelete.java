@@ -28,8 +28,6 @@ public class OpDelete extends EditOperation {
                 deleteLine = textWorkload.find(parser.getAll());
             } catch (WorkloadTextNotFound e1) {
                 throw new OperationWrongArgument("Text Not Found.");
-            } catch (Exception ex) {
-                ex.printStackTrace();
             }
 
         }

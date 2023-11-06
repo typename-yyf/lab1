@@ -14,7 +14,6 @@ public class OpInsert extends OpAbstractInsert{
     public void parseArgument(Parser parser) throws OperationWrongArgument {
         try {
             insertLine = parser.getInteger();
-            //TODO 添加对行号超出范围的判断
         } catch (ParserNoElementFound e) {
             throw new OperationWrongArgument("Wrong arguments.");
         } catch (ParserNotAInteger e) {
@@ -24,7 +23,7 @@ public class OpInsert extends OpAbstractInsert{
     }
     @Override
     public void _execute(){
-        textWorkload.insert(text,insertLine);
+        textWorkload.insert(text, insertLine);
     }
 
 }
