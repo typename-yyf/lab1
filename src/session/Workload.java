@@ -33,12 +33,21 @@ public class Workload {
 
     public Workload(String file) throws IOException {
         this.statSeq = new LinkedList<>();
+        this.sessionStart = LocalDateTime.now(); // 初始化 sessionStart
+        this.fileWorkTimeMap = new HashMap<>(); // 在构造函数中初始化
+        this.fileLastSaveTimeMap = new HashMap<>();
         load(file);
         changeTime(file);
     }
 
     public void loadNewFile(String file) throws IOException {
         if(Objects.equals(file, getFileName()))return;
+        // 在加载新文件前，先更新当前文件的工作时间
+        LocalDateTime now = LocalDateTime.now();
+        long minutes = Duration.between(fileLastSaveTimeMap.get(stat.fileName), now).toMinutes();
+        fileWorkTimeMap.put(stat.fileName, fileWorkTimeMap.getOrDefault(stat.fileName, 0L) + minutes);
+        fileLastSaveTimeMap.put(stat.fileName, now);
+        // 然后再加载新文件
         load(file);
         changeTime(file);
     }
@@ -70,15 +79,7 @@ public class Workload {
         this.stat = new Stat(file,LocalDateTime.now());
         this.statSeq.add(stat);
 
-        for(Stat s:this.statSeq){
-            System.out.print(s.fileName+"  ");
-            System.out.print(s.startTime+"  ");
-            System.out.println(s.endTime);
-        }
-
-        this.fileWorkTimeMap = new HashMap<>();
-        this.fileLastSaveTimeMap = new HashMap<>();
-        this.fileLastSaveTimeMap.put(file, LocalDateTime.now());
+        this.fileLastSaveTimeMap.put(file, LocalDateTime.now()); // 更新而不是重新创建
         this.textList = new LinkedList<>();
     }
 
@@ -181,12 +182,23 @@ public class Workload {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd:HHmmss");
         System.out.println("session start " + sessionStart.format(formatter));
 
+        // 在统计之前先更新当前文件的工作时间
+        LocalDateTime now = LocalDateTime.now();
+        long unsavedMinutes = Duration.between(fileLastSaveTimeMap.get(stat.fileName), now).toMinutes();
+        long totalMinutes = fileWorkTimeMap.getOrDefault(stat.fileName, 0L) + unsavedMinutes;
+
         if ("all".equals(option)) {
             for (Map.Entry<String, Long> entry : fileWorkTimeMap.entrySet()) {
-                printWorkTime(getRelativePath(entry.getKey()), entry.getValue());
+                // 如果是当前文件，则使用更新后的工作时间
+                if (entry.getKey().equals(stat.fileName)) {
+                    printWorkTime(getRelativePath(entry.getKey()), totalMinutes);
+                } else {
+                    printWorkTime(getRelativePath(entry.getKey()), entry.getValue());
+                }
             }
         } else { // 默认为 "current"
-            printWorkTime(getRelativePath(stat.fileName), fileWorkTimeMap.getOrDefault(stat.fileName, 0L));
+            System.out.println(option);;
+            printWorkTime(getRelativePath(stat.fileName), totalMinutes);
         }
     }
 

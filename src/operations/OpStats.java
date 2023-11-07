@@ -9,7 +9,13 @@ public class OpStats extends Operation{
     String option;
     @Override
     public void parseArgument(Parser parser) {
-
+        option = parser.getAll();
+        String [] words = option.split(" ");
+        if(words.length==1){
+            option = words[0];}
+        else{
+            option = words[1];
+        }
     }
 
     @Override
